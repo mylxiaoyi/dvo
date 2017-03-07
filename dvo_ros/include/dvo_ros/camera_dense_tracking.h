@@ -1,7 +1,8 @@
 /**
  *  This file is part of dvo.
  *
- *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical University of Munich)
+ *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical
+ *University of Munich)
  *  For more information see <http://vision.in.tum.de/data/software/dvo>.
  *
  *  dvo is free software: you can redistribute it and/or modify
@@ -53,50 +54,54 @@ namespace dvo_ros
 class CameraDenseTracker : public CameraBase
 {
 private:
-  typedef dynamic_reconfigure::Server<dvo_ros::CameraDenseTrackerConfig> ReconfigureServer;
+    typedef dynamic_reconfigure::Server<dvo_ros::CameraDenseTrackerConfig> ReconfigureServer;
 
-  uint32_t width;
-  uint32_t height;
+    uint32_t width;
+    uint32_t height;
 
-  boost::shared_ptr<dvo::DenseTracker> tracker;
-  dvo::DenseTracker::Config tracker_cfg;
-  boost::shared_ptr<dvo::core::RgbdImagePyramid> current, reference;
+    boost::shared_ptr<dvo::DenseTracker> tracker;
+    dvo::DenseTracker::Config tracker_cfg;
+    boost::shared_ptr<dvo::core::RgbdImagePyramid> current, reference;
 
-  Eigen::Affine3d accumulated_transform, from_baselink_to_asus, latest_absolute_transform_;
+    Eigen::Affine3d accumulated_transform, from_baselink_to_asus, latest_absolute_transform_;
 
-  size_t frames_since_last_success;
+    size_t frames_since_last_success;
 
-  tf::TransformListener tl;
+    tf::TransformListener tl;
 
-  ros::Publisher pose_pub_;
-  ros::Subscriber pose_sub_;
+    ros::Publisher pose_pub_;
+    ros::Subscriber pose_sub_;
 
-  ReconfigureServer reconfigure_server_;
+    ReconfigureServer reconfigure_server_;
 
-  dvo::visualization::CameraTrajectoryVisualizerInterface* vis_;
+    dvo::visualization::CameraTrajectoryVisualizerInterface* vis_;
 
-  bool use_dense_tracking_estimate_;
-  boost::mutex tracker_mutex_;
+    bool use_dense_tracking_estimate_;
+    boost::mutex tracker_mutex_;
 
-  bool hasChanged(const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
-  void reset(const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
+    bool hasChanged (const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
+    void reset (const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
 
-  void publishTransform(const std_msgs::Header& header, const Eigen::Affine3d& transform, const std::string frame);
-  void publishPose(const std_msgs::Header& header, const Eigen::Affine3d& transform, const std::string frame);
+    void publishTransform (const std_msgs::Header& header,
+                           const Eigen::Affine3d& transform,
+                           const std::string frame);
+    void publishPose (const std_msgs::Header& header,
+                      const Eigen::Affine3d& transform,
+                      const std::string frame);
+
 public:
-  CameraDenseTracker(ros::NodeHandle& nh, ros::NodeHandle& nh_private);
-  virtual ~CameraDenseTracker();
+    CameraDenseTracker (ros::NodeHandle& nh, ros::NodeHandle& nh_private);
+    virtual ~CameraDenseTracker ();
 
-  virtual void handleImages(
-      const sensor_msgs::Image::ConstPtr& rgb_image_msg,
-      const sensor_msgs::Image::ConstPtr& depth_image_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
-  );
+    virtual void
+    handleImages (const sensor_msgs::Image::ConstPtr& rgb_image_msg,
+                  const sensor_msgs::Image::ConstPtr& depth_image_msg,
+                  const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
+                  const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg);
 
-  void handlePose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& pose);
+    void handlePose (const geometry_msgs::PoseWithCovarianceStampedConstPtr& pose);
 
-  void handleConfig(dvo_ros::CameraDenseTrackerConfig& config, uint32_t level);
+    void handleConfig (dvo_ros::CameraDenseTrackerConfig& config, uint32_t level);
 };
 
 } /* namespace dvo_ros */

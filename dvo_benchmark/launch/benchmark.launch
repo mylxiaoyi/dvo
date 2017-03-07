@@ -1,5 +1,5 @@
 <launch>
-  <arg name="dataset" />
+  <arg name="dataset" value="/media/datadisk/slamdataset/tum_rgbd/all_bags/rgbd_dataset_freiburg1_xyz"/>
   <arg name="launch_dir" value="$(find dvo_benchmark)/launch" />
   <arg name="output_dir" value="$(find dvo_benchmark)/output" />
   
@@ -12,7 +12,7 @@
   <env name="ROSCONSOLE_FORMAT"      value="${logger}: { ${message} }" />
 
   <node pkg="dvo_benchmark" type="benchmark" name="benchmark" output="screen">
-    <param type="string" name="rgbdpair_file" value="$(arg dataset)/assoc.txt" />
+    <param type="string" name="rgbdpair_file" value="$(arg dataset)/association.txt" />
     <param type="string" name="groundtruth_file" value="$(arg dataset)/groundtruth.txt" />
     
     <param type="bool" name="estimate_trajectory" value="false" />

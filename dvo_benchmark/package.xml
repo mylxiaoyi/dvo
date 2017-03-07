@@ -1,0 +1,20 @@
+<package>
+  <name>dvo_benchmark</name>
+  <version>0.0.1</version>
+  <description>
+
+     dvo_benchmark
+
+  </description>
+  <author>Christian Kerl</author>
+  <license>GPL</license>
+  <maintainer email="author@email.com">author</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>dvo_core</build_depend>
+  <build_depend>dvo_ros</build_depend>
+
+</package>
+
+
