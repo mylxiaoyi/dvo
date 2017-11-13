@@ -1,5 +1,5 @@
 <launch>
-  <arg name="dataset" value="/media/datadisk/slamdataset/tum_rgbd/all_bags/rgbd_dataset_freiburg1_xyz"/>
+  <arg name="dataset" value="/media/datadisk/slamdata/rgbd_dataset_freiburg1_xyz"/>
   <arg name="launch_dir" value="$(find dvo_benchmark)/launch" />
   <arg name="output_dir" value="$(find dvo_benchmark)/output" />
   

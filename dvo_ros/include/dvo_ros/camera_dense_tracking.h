@@ -25,14 +25,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include <ros/ros.h>
 #include <ros/console.h>
+#include <ros/ros.h>
 
 #include <tf/transform_listener.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/CameraInfo.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/Image.h>
 
 #include <image_transport/image_transport.h>
 
@@ -40,18 +40,24 @@
 
 #include <dynamic_reconfigure/server.h>
 
-#include <dvo_ros/camera_base.h>
+//#include <dvo_ros/camera_base.h>
 #include <dvo_ros/CameraDenseTrackerConfig.h>
 
-#include <dvo/dense_tracking.h>
 #include <dvo/core/intrinsic_matrix.h>
 #include <dvo/core/rgbd_image.h>
+#include <dvo/dense_tracking.h>
 #include <dvo/visualization/camera_trajectory_visualizer.h>
+
+#include <message_filters/subscriber.h>
+#include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/synchronizer.h>
 
 namespace dvo_ros
 {
 
-class CameraDenseTracker : public CameraBase
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MyRGBDWithCameraInfoPolicy;
+
+class CameraDenseTracker //: public CameraBase
 {
 private:
     typedef dynamic_reconfigure::Server<dvo_ros::CameraDenseTrackerConfig> ReconfigureServer;
@@ -63,7 +69,7 @@ private:
     dvo::DenseTracker::Config tracker_cfg;
     boost::shared_ptr<dvo::core::RgbdImagePyramid> current, reference;
 
-    Eigen::Affine3d accumulated_transform, from_baselink_to_asus, latest_absolute_transform_;
+    Eigen::Affine3d accumulated_transform, /*from_baselink_to_asus,*/ latest_absolute_transform_;
 
     size_t frames_since_last_success;
 
@@ -74,13 +80,22 @@ private:
 
     ReconfigureServer reconfigure_server_;
 
-    dvo::visualization::CameraTrajectoryVisualizerInterface* vis_;
+    std::shared_ptr<dvo::visualization::CameraTrajectoryVisualizerInterface> vis_;
 
     bool use_dense_tracking_estimate_;
     boost::mutex tracker_mutex_;
 
+    message_filters::Subscriber<sensor_msgs::Image>* rgb_image_subscriber_;
+    message_filters::Subscriber<sensor_msgs::Image>* depth_image_subscriber_;
+    message_filters::Subscriber<sensor_msgs::CameraInfo>* rgb_camera_info_subscriber_;
+    message_filters::Subscriber<sensor_msgs::CameraInfo>* depth_camera_info_subscriber_;
+
+    message_filters::Synchronizer<MyRGBDWithCameraInfoPolicy>* my_synchronizer_;
+
     bool hasChanged (const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
+    bool hasChanged (const cv::Mat& img);
     void reset (const sensor_msgs::CameraInfo::ConstPtr& camera_info_msg);
+    void reset (const cv::Mat& img);
 
     void publishTransform (const std_msgs::Header& header,
                            const Eigen::Affine3d& transform,
@@ -89,15 +104,30 @@ private:
                       const Eigen::Affine3d& transform,
                       const std::string frame);
 
+    bool isSynchronizedImageStreamRunning ();
+
+    void startSynchronizedImageStream ();
+    void stopSynchronizedImageStream ();
+
+    message_filters::Connection connection;
+    bool connected;
+
+    ros::NodeHandle nh_;
+
 public:
     CameraDenseTracker (ros::NodeHandle& nh, ros::NodeHandle& nh_private);
     virtual ~CameraDenseTracker ();
 
-    virtual void
-    handleImages (const sensor_msgs::Image::ConstPtr& rgb_image_msg,
-                  const sensor_msgs::Image::ConstPtr& depth_image_msg,
-                  const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
-                  const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg);
+    //    virtual void
+    //    handleImages (const sensor_msgs::ImageConstPtr& rgb_image_msg,
+    //                  const sensor_msgs::ImageConstPtr& depth_image_msg,
+    //                  const sensor_msgs::CameraInfoConstPtr&
+    //                  rgb_camera_info_msg,
+    //                  const sensor_msgs::CameraInfoConstPtr&
+    //                  depth_camera_info_msg);
+
+    virtual void handleImages (const sensor_msgs::ImageConstPtr& rgb_image_msg,
+                               const sensor_msgs::ImageConstPtr& depth_image_msg);
 
     void handlePose (const geometry_msgs::PoseWithCovarianceStampedConstPtr& pose);
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 project(dvo_core)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -march=native -msse4 -msse4.2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -msse4 -msse4.2")
 
 find_package(catkin REQUIRED)
 
@@ -23,9 +23,9 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 find_package(PCL REQUIRED COMPONENTS common visualization)
 include_directories(${PCL_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-   "${SSE_FLAGS} -O3 -march=native"
-)
+#set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
+#   "${SSE_FLAGS} -O3 -march=native"
+#)
 
 catkin_package(
     INCLUDE_DIRS include

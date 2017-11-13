@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 project(dvo_ros)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3 -msse4 -msse4.2")
 
 find_package(catkin REQUIRED COMPONENTS
     dynamic_reconfigure    
@@ -28,6 +28,9 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 find_package(PCL REQUIRED COMPONENTS common visualization)
 include_directories(${PCL_INCLUDE_DIRS})
 
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 add_library(${PROJECT_NAME} 
     src/camera_base.cpp
     src/camera_dense_tracking.cpp
@@ -38,6 +41,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES}    
+    ${OpenCV_LIBS}
 )
 
 add_library(camera_tracker_nodelet
@@ -50,6 +54,7 @@ target_link_libraries(camera_tracker_nodelet
 
 add_executable(camera_tracker
      src/camera_tracker_node.cpp
+     src/StackTrace.cpp
 )
 
 target_link_libraries(camera_tracker

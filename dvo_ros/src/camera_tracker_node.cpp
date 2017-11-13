@@ -22,9 +22,12 @@
 #include <ros/console.h>
 
 #include <dvo_ros/camera_dense_tracking.h>
+#include <dvo_ros/StackTrace.h>
 
 int main(int argc, char** argv)
 {
+    dbg_stacktrace_setup();
+
     ros::init(argc, argv, "camera_tracker");
 
     ros::NodeHandle nh;

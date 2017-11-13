@@ -1,7 +1,8 @@
 /**
  *  This file is part of dvo.
  *
- *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical University of Munich)
+ *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical
+ * University of Munich)
  *  For more information see <http://vision.in.tum.de/data/software/dvo>.
  *
  *  dvo is free software: you can redistribute it and/or modify
@@ -31,34 +32,36 @@ namespace core
 struct IntrinsicMatrix
 {
 public:
-  struct Hash : std::unary_function<IntrinsicMatrix, std::size_t>
-  {
-      std::size_t operator()(IntrinsicMatrix const& value) const;
-  };
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  struct Equal : std::binary_function<IntrinsicMatrix, IntrinsicMatrix, bool>
-  {
-      bool operator()(IntrinsicMatrix const& left, IntrinsicMatrix const& right) const;
-  };
+    struct Hash : std::unary_function<IntrinsicMatrix, std::size_t>
+    {
+        std::size_t operator() (IntrinsicMatrix const& value) const;
+    };
 
-  static IntrinsicMatrix create(float fx, float fy, float ox, float oy);
+    struct Equal : std::binary_function<IntrinsicMatrix, IntrinsicMatrix, bool>
+    {
+        bool operator() (IntrinsicMatrix const& left, IntrinsicMatrix const& right) const;
+    };
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    static IntrinsicMatrix create (float fx, float fy, float ox, float oy);
 
-  IntrinsicMatrix() {}
+    IntrinsicMatrix ()
+    {
+    }
 
-  IntrinsicMatrix(const IntrinsicMatrix& other);
+    IntrinsicMatrix (const IntrinsicMatrix& other);
 
-  float fx() const;
-  float fy() const;
+    float fx () const;
+    float fy () const;
 
-  float ox() const;
-  float oy() const;
+    float ox () const;
+    float oy () const;
 
-  void invertOffset();
-  void scale(float factor);
+    void invertOffset ();
+    void scale (float factor);
 
-  Eigen::Matrix3f data;
+    Eigen::Matrix3f data;
 };
 
 } /* namespace core */

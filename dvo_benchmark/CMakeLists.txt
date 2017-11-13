@@ -17,6 +17,9 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 find_package(PCL REQUIRED COMPONENTS common visualization)
 include_directories(${PCL_INCLUDE_DIRS})
 
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 catkin_package()
 
 add_executable(benchmark
@@ -26,4 +29,5 @@ add_executable(benchmark
 target_link_libraries(benchmark
     ${catkin_LIBRARIES}
     ${PCL_LIBRARIES} 
+    ${OpenCV_LIBS}
 )

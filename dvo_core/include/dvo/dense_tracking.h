@@ -1,7 +1,8 @@
 /**
  *  This file is part of dvo.
  *
- *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical University of Munich)
+ *  Copyright 2012 Christian Kerl <christian.kerl@in.tum.de> (Technical
+ * University of Munich)
  *  For more information see <http://vision.in.tum.de/data/software/dvo>.
  *
  *  dvo is free software: you can redistribute it and/or modify
@@ -21,15 +22,15 @@
 #ifndef DENSE_TRACKER_H_
 #define DENSE_TRACKER_H_
 
-#include <opencv2/opencv.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <opencv2/opencv.hpp>
 #include <sophus/se3.hpp>
 
 #include <dvo/core/datatypes.h>
 #include <dvo/core/intrinsic_matrix.h>
-#include <dvo/core/rgbd_image.h>
 #include <dvo/core/least_squares.h>
+#include <dvo/core/rgbd_image.h>
 //#include "core/blur_detection.h"
 #include <dvo/core/weight_calculation.h>
 
@@ -49,111 +50,144 @@ namespace dvo
 class DenseTracker
 {
 public:
-  struct Config
-  {
-    int FirstLevel, LastLevel;
-    int MaxIterationsPerLevel;
-    double Precision;
-    double Lambda; // weighting factor for temporal smoothing
-    double Mu;     // weighting factor for driving solution close to imu estimate
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    bool UseInitialEstimate;
-    bool UseWeighting;
+    struct Config
+    {
+        int FirstLevel, LastLevel;
+        int MaxIterationsPerLevel;
+        double Precision;
+        double Lambda; // weighting factor for temporal smoothing
+        double Mu;     // weighting factor for driving solution close to imu
+                       // estimate
 
-    dvo::core::InfluenceFunctions::enum_t InfluenceFuntionType;
-    float InfluenceFunctionParam;
+        bool UseInitialEstimate;
+        bool UseWeighting;
 
-    dvo::core::ScaleEstimators::enum_t ScaleEstimatorType;
-    float ScaleEstimatorParam;
+        dvo::core::InfluenceFunctions::enum_t InfluenceFuntionType;
+        float InfluenceFunctionParam;
 
-    Config();
-    size_t getNumLevels() const;
+        dvo::core::ScaleEstimators::enum_t ScaleEstimatorType;
+        float ScaleEstimatorParam;
 
-    bool UseTemporalSmoothing() const;
+        Config ();
+        size_t getNumLevels () const;
 
-    bool UseEstimateSmoothing() const;
+        bool UseTemporalSmoothing () const;
 
-    bool IsSane() const;
-  };
+        bool UseEstimateSmoothing () const;
 
-  struct IterationContext
-  {
-    const Config& cfg;
+        bool IsSane () const;
+    };
 
-    int Level;
-    int Iteration;
+    struct IterationContext
+    {
+        const Config& cfg;
 
-    size_t NumConstraints;
+        int Level;
+        int Iteration;
 
-    double Error, LastError;
+        size_t NumConstraints;
 
-    IterationContext(const Config& cfg);
+        double Error, LastError;
 
-    // returns true if this is the first iteration
-    bool IsFirstIteration() const;
+        IterationContext (const Config& cfg);
 
-    // returns true if this is the first iteration on the current level
-    bool IsFirstIterationOnLevel() const;
+        // returns true if this is the first iteration
+        bool IsFirstIteration () const;
 
-    // returns true if this is the first level
-    bool IsFirstLevel() const;
+        // returns true if this is the first iteration on the current level
+        bool IsFirstIterationOnLevel () const;
 
-    // returns true if this is the last level
-    bool IsLastLevel() const;
+        // returns true if this is the first level
+        bool IsFirstLevel () const;
 
-    bool IterationsExceeded() const;
+        // returns true if this is the last level
+        bool IsLastLevel () const;
 
-    // returns LastError - Error
-    double ErrorDiff() const;
-  };
+        bool IterationsExceeded () const;
 
-  static const Config& getDefaultConfig();
+        // returns LastError - Error
+        double ErrorDiff () const;
+    };
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    static const Config& getDefaultConfig ();
 
-  // TODO: make cfg pass by value
-  DenseTracker(dvo::core::IntrinsicMatrix& intrinsics, const Config& cfg = getDefaultConfig());
+    // TODO: make cfg pass by value
+    DenseTracker (dvo::core::IntrinsicMatrix& intrinsics,
+                  const Config& cfg = getDefaultConfig ());
 
-  // TODO: need some method to get current configuration
-  // TODO: pass new config in here
-  void configure();
+    // TODO: need some method to get current configuration
+    // TODO: pass new config in here
+    void configure ();
 
-  const dvo::core::IntrinsicMatrix& intrinsics(size_t level);
+    const dvo::core::IntrinsicMatrix& intrinsics (size_t level);
 
-  bool match(dvo::core::RgbdImagePyramid& reference, dvo::core::RgbdImagePyramid& current, Eigen::Affine3d& transformation);
+    bool match (dvo::core::RgbdImagePyramid& reference,
+                dvo::core::RgbdImagePyramid& current,
+                Eigen::Affine3d& transformation);
 
-  // TODO: remove
-  void updateLastTransform(Eigen::Affine3d& last_transformation);
+    // TODO: remove
+    void updateLastTransform (Eigen::Affine3d& last_transformation);
 
-  // TODO: remove
-  void getCovarianceEstimate(Eigen::Matrix<double, 6, 6>& covariance) const;
+    // TODO: remove
+    void getCovarianceEstimate (Eigen::Matrix<double, 6, 6>& covariance) const;
 
-  static inline void computeJacobianOfProjectionAndTransformation(const dvo::core::Vector4& p, dvo::core::Matrix2x6& jacobian);
+    static inline void
+    computeJacobianOfProjectionAndTransformation (const dvo::core::Vector4& p,
+                                                  dvo::core::Matrix2x6& jacobian);
 
-  IterationContext itctx_;
+    IterationContext itctx_;
+
 private:
-  const Config& cfg;
-  std::vector<dvo::core::IntrinsicMatrix> intrinsics_;
-  dvo::core::WeightCalculation weight_calculation_;
+    const Config& cfg;
+    std::vector<dvo::core::IntrinsicMatrix> intrinsics_;
+    dvo::core::WeightCalculation weight_calculation_;
 
-  Sophus::SE3d last_xi_;
+    Sophus::SE3d last_xi_;
 
-  dvo::core::Matrix6x6 last_a_;
+    dvo::core::Matrix6x6 last_a_;
 
-  void computeLeastSquaresEquationsForwardAdditive(dvo::core::RgbdImage& ref, dvo::core::RgbdImage& cur, const dvo::core::IntrinsicMatrix& intrinsics, const dvo::core::AffineTransform& transformation, dvo::core::LeastSquaresInterface& ls);
-  void computeLeastSquaresEquationsForwardCompositional(dvo::core::RgbdImage& ref, dvo::core::RgbdImage& cur, const dvo::core::IntrinsicMatrix& intrinsics, const dvo::core::AffineTransform& transformation, dvo::core::LeastSquaresInterface& ls);
-  void computeLeastSquaresEquationsInverseCompositional(dvo::core::RgbdImage& ref, dvo::core::RgbdImage& cur, const dvo::core::IntrinsicMatrix& intrinsics, const dvo::core::AffineTransform& transformation, dvo::core::LeastSquaresInterface& ls);
-  void computeLeastSquaresEquationsForwardCompositionalESM(dvo::core::RgbdImage& ref, dvo::core::RgbdImage& cur, const dvo::core::IntrinsicMatrix& intrinsics, const dvo::core::AffineTransform& transformation, dvo::core::LeastSquaresInterface& ls);
-  inline void computeLeastSquaresEquationsGeneric(const cv::Mat& residuals, const cv::Mat& Jix, const cv::Mat& Jiy, const dvo::core::RgbdImage::PointCloud& points, dvo::core::LeastSquaresInterface& ls);
+    void
+    computeLeastSquaresEquationsForwardAdditive (dvo::core::RgbdImage& ref,
+                                                 dvo::core::RgbdImage& cur,
+                                                 const dvo::core::IntrinsicMatrix& intrinsics,
+                                                 const dvo::core::AffineTransform& transformation,
+                                                 dvo::core::LeastSquaresInterface& ls);
+    void computeLeastSquaresEquationsForwardCompositional (
+    dvo::core::RgbdImage& ref,
+    dvo::core::RgbdImage& cur,
+    const dvo::core::IntrinsicMatrix& intrinsics,
+    const dvo::core::AffineTransform& transformation,
+    dvo::core::LeastSquaresInterface& ls);
+    void computeLeastSquaresEquationsInverseCompositional (
+    dvo::core::RgbdImage& ref,
+    dvo::core::RgbdImage& cur,
+    const dvo::core::IntrinsicMatrix& intrinsics,
+    const dvo::core::AffineTransform& transformation,
+    dvo::core::LeastSquaresInterface& ls);
+    void computeLeastSquaresEquationsForwardCompositionalESM (
+    dvo::core::RgbdImage& ref,
+    dvo::core::RgbdImage& cur,
+    const dvo::core::IntrinsicMatrix& intrinsics,
+    const dvo::core::AffineTransform& transformation,
+    dvo::core::LeastSquaresInterface& ls);
+    inline void
+    computeLeastSquaresEquationsGeneric (const cv::Mat& residuals,
+                                         const cv::Mat& Jix,
+                                         const cv::Mat& Jiy,
+                                         const dvo::core::RgbdImage::PointCloud& points,
+                                         dvo::core::LeastSquaresInterface& ls);
 
-  inline void computeWeights(const cv::Mat& residuals, cv::Mat& weights);
+    inline void computeWeights (const cv::Mat& residuals, cv::Mat& weights);
 
-  void compute3rdRowOfJacobianOfTransformation(dvo::core::Vector4& p, dvo::core::Vector6& j);
+    void compute3rdRowOfJacobianOfTransformation (dvo::core::Vector4& p,
+                                                  dvo::core::Vector6& j);
 };
 
 } /* namespace dvo */
 
-std::ostream& operator<< (std::ostream &out, dvo::DenseTracker::Config &config);
-std::ostream& operator<< (std::ostream &out, dvo::DenseTracker::IterationContext &ctx);
+std::ostream& operator<< (std::ostream& out, dvo::DenseTracker::Config& config);
+std::ostream& operator<< (std::ostream& out, dvo::DenseTracker::IterationContext& ctx);
 
 #endif /* DENSE_TRACKER_H_ */
